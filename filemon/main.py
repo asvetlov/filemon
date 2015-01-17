@@ -31,6 +31,7 @@ class MainWindow(QtGui.QMainWindow):
         self.filemodel = FileSystemModel()
 
         self.cwd_edit = QtGui.QLineEdit()
+        self.filemodel.rootPathChanged.connect(self.cwd_edit.setText)
         # select_path = QtGui.QPushButton("Go")
         self.filter_edit = QtGui.QLineEdit()
         self.filter_edit.textChanged.connect(self.filemodel.filter_changed)
@@ -41,6 +42,7 @@ class MainWindow(QtGui.QMainWindow):
         self.file_view = QtGui.QListView(parent=self)
         self.file_view.setModel(self.filemodel)
         self.file_view.doubleClicked[QtCore.QModelIndex].connect(self.chdir)
+        self.filemodel.root_index_changed.connect(self.file_view.setRootIndex)
 
         self.selectionModel = self.file_view.selectionModel()
         self.selectionModel.currentChanged.connect(self.do_preview)
@@ -81,18 +83,14 @@ class MainWindow(QtGui.QMainWindow):
         back_act = QtGui.QAction(back_icon, "&Parent", self,
                                  shortcut=QtGui.QKeySequence.Back,
                                  statusTip="Parent directory",
-                                 triggered=self.do_back_action)
+                                 triggered=self.filemodel.go_parent)
         self.toolbar.addAction(back_act)
 
     def do_home_action(self):
-        self.set_path(os.path.expanduser('~'))
+        self.filemodel.set_path(os.path.expanduser('~'))
 
     def do_refresh_action(self):
         pass
-
-    def do_back_action(self):
-        path = self.filemodel.rootPath()
-        self.set_path(path + '/..')
 
     def do_preview(self, new, old):
         fname = self.filemodel.filePath(new)
@@ -103,28 +101,19 @@ class MainWindow(QtGui.QMainWindow):
             pixmap = pixmap.scaledToHeight(size.height())
         self.preview.setPixmap(pixmap)
 
-    def set_path(self, path):
-        print(path)
-        path = os.path.abspath(path)
-        self.filemodel.setRootPath(path)
-        self.file_view.setRootIndex(self.filemodel.index(path))
-        if self.cwd_edit.text != path:
-            self.cwd_edit.setText(path)
-        self.filemodel.filter_reset.emit()
-
     def chdir(self, index):
         # get selected path of folder_view
         index = self.selectionModel.currentIndex()
         if not self.filemodel.isDir(index):
             return
         dir_path = self.filemodel.filePath(index)
-        self.set_path(dir_path)
+        self.filemodel.set_path(dir_path)
 
 
 def main():
     app = QtGui.QApplication(sys.argv)
     main = MainWindow()
     main.show()
-    main.set_path(os.getcwd())
+    main.filemodel.set_path(os.getcwd())
 
     sys.exit(app.exec_())
