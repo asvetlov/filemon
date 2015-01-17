@@ -2,6 +2,8 @@ import sys
 from PySide import QtGui, QtCore
 import os
 
+from .files import FileSystemModel
+
 
 class MainWindow(QtGui.QMainWindow):
 
@@ -29,10 +31,11 @@ class MainWindow(QtGui.QMainWindow):
         self.cwd_edit = QtGui.QLineEdit()
         # select_path = QtGui.QPushButton("Go")
         self.filter_edit = QtGui.QLineEdit()
+        self.filter_edit.textChanged.connect(self.do_text_changed)
 
         self.fileBrowserWidget = QtGui.QWidget(self)
 
-        self.filemodel = QtGui.QFileSystemModel()
+        self.filemodel = FileSystemModel()
         self.filemodel.setFilter(QtCore.QDir.AllDirs |
                                  QtCore.QDir.NoDot |
                                  QtCore.QDir.NoDotDot |
@@ -105,6 +108,13 @@ class MainWindow(QtGui.QMainWindow):
             pixmap = pixmap.scaledToHeight(size.height())
         self.preview.setPixmap(pixmap)
 
+    def do_text_changed(self, text):
+        text = text.strip()
+        if text:
+            self.filemodel.setNameFilters([text])
+        else:
+            self.filemodel.setNameFilters([])
+
     def set_path(self, path):
         print(path)
         path = os.path.abspath(path)
@@ -112,6 +122,7 @@ class MainWindow(QtGui.QMainWindow):
         self.file_view.setRootIndex(self.filemodel.index(path))
         if self.cwd_edit.text != path:
             self.cwd_edit.setText(path)
+        self.filter_edit.setText('')  # reset filter
 
     def chdir(self, index):
         # get selected path of folder_view
