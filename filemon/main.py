@@ -36,12 +36,6 @@ class MainWindow(QtGui.QMainWindow):
         self.fileBrowserWidget = QtGui.QWidget(self)
 
         self.filemodel = FileSystemModel()
-        self.filemodel.setFilter(QtCore.QDir.AllDirs |
-                                 QtCore.QDir.NoDot |
-                                 QtCore.QDir.NoDotDot |
-                                 QtCore.QDir.AllEntries |
-                                 QtCore.QDir.DirsFirst |
-                                 QtCore.QDir.Name)
 
         self.file_view = QtGui.QListView(parent=self)
         self.file_view.setModel(self.filemodel)
@@ -111,7 +105,7 @@ class MainWindow(QtGui.QMainWindow):
     def do_text_changed(self, text):
         text = text.strip()
         if text:
-            self.filemodel.setNameFilters([text])
+            self.filemodel.setNameFilters(['*'+text+'*'])
         else:
             self.filemodel.setNameFilters([])
 
