@@ -3,6 +3,8 @@ from PySide import QtGui, QtCore
 
 class FileSystemModel(QtGui.QFileSystemModel):
 
+    filter_reset = QtCore.Signal()
+
     def __init__(self):
         QtGui.QFileSystemModel.__init__(self)
         self.setFilter(QtCore.QDir.AllDirs |

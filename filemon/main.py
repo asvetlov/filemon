@@ -34,6 +34,7 @@ class MainWindow(QtGui.QMainWindow):
         # select_path = QtGui.QPushButton("Go")
         self.filter_edit = QtGui.QLineEdit()
         self.filter_edit.textChanged.connect(self.filemodel.filter_changed)
+        self.filemodel.filter_reset.connect(self.filter_edit.clear)
 
         self.fileBrowserWidget = QtGui.QWidget(self)
 
@@ -109,7 +110,7 @@ class MainWindow(QtGui.QMainWindow):
         self.file_view.setRootIndex(self.filemodel.index(path))
         if self.cwd_edit.text != path:
             self.cwd_edit.setText(path)
-        self.filter_edit.setText('')  # reset filter
+        self.filemodel.filter_reset.emit()
 
     def chdir(self, index):
         # get selected path of folder_view
