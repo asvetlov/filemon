@@ -2,6 +2,8 @@ import sys
 from PySide import QtGui, QtCore
 import os
 
+from mimetypes import guess_type
+
 
 class MainWindow(QtGui.QMainWindow):
 
@@ -47,13 +49,15 @@ class MainWindow(QtGui.QMainWindow):
         self.selectionModel = self.file_view.selectionModel()
         self.selectionModel.currentChanged.connect(self.do_preview)
 
-        self.preview = QtGui.QWidget(parent=self)
-        splitter = QtGui.QSplitter(parent=self)
+        self.preview = QtGui.QLabel(parent=self)
+        splitter = QtGui.QSplitter(QtCore.Qt.Vertical, parent=self)
+        splitter.addWidget(self.file_view)
+        splitter.addWidget(self.preview)
 
         hbox = QtGui.QVBoxLayout()
         hbox.addWidget(self.cwd_edit)
         hbox.addWidget(self.filter_edit)
-        hbox.addWidget(self.file_view)
+        hbox.addWidget(splitter)
         self.main_widget.setLayout(hbox)
         self.setup_toolbar()
 
@@ -95,11 +99,13 @@ class MainWindow(QtGui.QMainWindow):
         self.set_path(path + '/..')
 
     def do_preview(self, new, old):
-
-        if self.filemodel.isDir(new):
-            pass
         fname = self.filemodel.filePath(new)
-        print(fname)
+        image = QtGui.QImage(fname)
+        pixmap = QtGui.QPixmap.fromImage(image)
+        if not pixmap.isNull():
+            size = self.preview.size()
+            pixmap = pixmap.scaledToHeight(size.height())
+        self.preview.setPixmap(pixmap)
 
     def set_path(self, path):
         print(path)
