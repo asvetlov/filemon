@@ -1,5 +1,6 @@
 import sys
 from PySide import QtGui, QtCore
+import os
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -35,40 +36,21 @@ class MainWindow(QtGui.QMainWindow):
 
         self.fileBrowserWidget = QtGui.QWidget(self)
 
-        self.dirmodel = QtGui.QFileSystemModel()
-        # Don't show files, just folders
-        self.dirmodel.setFilter(
-            QtCore.QDir.NoDotAndDotDot | QtCore.QDir.AllDirs)
-
-        self.folder_view = QtGui.QTreeView(parent=self)
-        self.folder_view.setModel(self.dirmodel)
-        self.folder_view.clicked[QtCore.QModelIndex].connect(self.clicked)
-        # Don't show columns for size, file type, and last modified
-        self.folder_view.setHeaderHidden(True)
-        self.folder_view.hideColumn(1)
-        self.folder_view.hideColumn(2)
-        self.folder_view.hideColumn(3)
-
-        self.selectionModel = self.folder_view.selectionModel()
-
         self.filemodel = QtGui.QFileSystemModel()
-        # Don't show folders, just files
         self.filemodel.setFilter(
             QtCore.QDir.NoDotAndDotDot | QtCore.QDir.Files)
 
         self.file_view = QtGui.QListView(parent=self)
         self.file_view.setModel(self.filemodel)
+        self.file_view.doubleClicked[QtCore.QModelIndex].connect(self.chdir)
+
+        self.selectionModel = self.file_view.selectionModel()
 
         group_input = QtGui.QGroupBox()
         grid_input = QtGui.QGridLayout()
 
-        splitter_filebrowser = QtGui.QSplitter()
-        splitter_filebrowser.addWidget(self.folder_view)
-        splitter_filebrowser.addWidget(self.file_view)
-        splitter_filebrowser.setStretchFactor(0, 2)
-        splitter_filebrowser.setStretchFactor(1, 4)
         hbox = QtGui.QHBoxLayout()
-        hbox.addWidget(splitter_filebrowser)
+        hbox.addWidget(self.file_view)
         self.fileBrowserWidget.setLayout(hbox)
 
         grid_input.addWidget(select_path_label, 0, 0)
@@ -93,17 +75,16 @@ class MainWindow(QtGui.QMainWindow):
         vbox_main.setContentsMargins(0, 0, 0, 0)
         # self.setLayout(vbox_main)
 
-    def set_path(self):
-        self.dirmodel.setRootPath("")
+    def set_path(self, path):
+        self.filemodel.setRootPath(path)
 
-    def clicked(self, index):
+    def chdir(self, index):
         # get selected path of folder_view
         index = self.selectionModel.currentIndex()
-        dir_path = self.dirmodel.filePath(index)
-        ###############################################
-        # Here's my problem: How do I set the dir_path
-        # for the file_view widget / the filemodel?
-        ###############################################
+        if not self.filemodel.isDir(index):
+            return
+        dir_path = self.filemodel.filePath(index)
+
         self.filemodel.setRootPath(dir_path)
         self.file_view.setRootIndex(self.filemodel.index(dir_path))
 
@@ -112,6 +93,6 @@ def main():
     app = QtGui.QApplication(sys.argv)
     main = MainWindow()
     main.show()
-    main.set_path()
+    main.set_path(os.getcwd())
 
     sys.exit(app.exec_())
