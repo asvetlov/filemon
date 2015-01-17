@@ -12,3 +12,11 @@ class FileSystemModel(QtGui.QFileSystemModel):
                        QtCore.QDir.DirsFirst |
                        QtCore.QDir.Name)
         self.setNameFilterDisables(False)
+
+    @QtCore.Slot(str)
+    def filter_changed(self, text):
+        text = text.strip()
+        if text:
+            self.setNameFilters(['*'+text+'*'])
+        else:
+            self.setNameFilters([])

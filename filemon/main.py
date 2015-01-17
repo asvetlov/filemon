@@ -28,14 +28,14 @@ class MainWindow(QtGui.QMainWindow):
         self.main_widget = QtGui.QWidget(self)
         self.setCentralWidget(self.main_widget)
 
+        self.filemodel = FileSystemModel()
+
         self.cwd_edit = QtGui.QLineEdit()
         # select_path = QtGui.QPushButton("Go")
         self.filter_edit = QtGui.QLineEdit()
-        self.filter_edit.textChanged.connect(self.do_text_changed)
+        self.filter_edit.textChanged.connect(self.filemodel.filter_changed)
 
         self.fileBrowserWidget = QtGui.QWidget(self)
-
-        self.filemodel = FileSystemModel()
 
         self.file_view = QtGui.QListView(parent=self)
         self.file_view.setModel(self.filemodel)
@@ -101,13 +101,6 @@ class MainWindow(QtGui.QMainWindow):
             size = self.preview.size()
             pixmap = pixmap.scaledToHeight(size.height())
         self.preview.setPixmap(pixmap)
-
-    def do_text_changed(self, text):
-        text = text.strip()
-        if text:
-            self.filemodel.setNameFilters(['*'+text+'*'])
-        else:
-            self.filemodel.setNameFilters([])
 
     def set_path(self, path):
         print(path)
