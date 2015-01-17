@@ -1,6 +1,5 @@
 import sys
 from PySide import QtGui, QtCore
-import os
 
 from .files import FileSystemModel
 
@@ -86,8 +85,27 @@ class MainWindow(QtGui.QMainWindow):
                                  triggered=self.filemodel.go_parent)
         self.toolbar.addAction(back_act)
 
+        pin_icon = style.standardIcon(
+            QtGui.QStyle.SP_DialogYesButton, None, self)
+        pin_act = QtGui.QAction(pin_icon, "&Stay on Top", self,
+                                shortcut=QtGui.QKeySequence.Back,
+                                statusTip="Stay on Top")
+        pin_act.toggled.connect(self.do_stay_on_top)
+        pin_act.setCheckable(True)
+        self.toolbar.addAction(pin_act)
+
     def do_refresh_action(self):
         pass
+
+    def do_stay_on_top(self, checked):
+        if sys.platform != 'win32':
+            return
+        flags = self.windowFlags()
+        flag = QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.CustomizeWindowHint
+        if checked:
+            self.setWindowFlags(flags | flag)
+        else:
+            self.setWindowFlags(flags & ~flag)
 
     def do_preview(self, new, old):
         fname = self.filemodel.filePath(new)
