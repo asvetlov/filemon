@@ -129,6 +129,6 @@ def main():
     app = QtGui.QApplication(sys.argv)
     main = MainWindow()
     main.show()
-    main.filemodel.go_home()
+    main.filemodel.go_cwd()
 
     sys.exit(app.exec_())
