@@ -2,8 +2,6 @@ import sys
 from PySide import QtGui, QtCore
 import os
 
-from mimetypes import guess_type
-
 
 class MainWindow(QtGui.QMainWindow):
 
