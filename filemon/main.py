@@ -37,8 +37,14 @@ class MainWindow(QtGui.QMainWindow):
         self.fileBrowserWidget = QtGui.QWidget(self)
 
         self.filemodel = QtGui.QFileSystemModel()
-        self.filemodel.setFilter(
-            QtCore.QDir.NoDotAndDotDot | QtCore.QDir.Files)
+        self.filemodel.setFilter(QtCore.QDir.Name |
+                                 QtCore.QDir.AllDirs |
+                                 QtCore.QDir.NoDot |
+                                 QtCore.QDir.NoDotDot |
+                                 QtCore.QDir.AllEntries |
+                                 QtCore.QDir.IgnoreCase |
+                                 QtCore.QDir.DirsFirst |
+                                 QtCore.QDir.LocaleAware)
 
         self.file_view = QtGui.QListView(parent=self)
         self.file_view.setModel(self.filemodel)
