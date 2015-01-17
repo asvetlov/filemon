@@ -45,6 +45,10 @@ class MainWindow(QtGui.QMainWindow):
         self.file_view.doubleClicked[QtCore.QModelIndex].connect(self.chdir)
 
         self.selectionModel = self.file_view.selectionModel()
+        self.selectionModel.currentChanged.connect(self.do_preview)
+
+        self.preview = QtGui.QWidget(parent=self)
+        splitter = QtGui.QSplitter(parent=self)
 
         hbox = QtGui.QVBoxLayout()
         hbox.addWidget(self.cwd_edit)
@@ -89,6 +93,13 @@ class MainWindow(QtGui.QMainWindow):
     def do_back_action(self):
         path = self.filemodel.rootPath()
         self.set_path(path + '/..')
+
+    def do_preview(self, new, old):
+
+        if self.filemodel.isDir(new):
+            pass
+        fname = self.filemodel.filePath(new)
+        print(fname)
 
     def set_path(self, path):
         print(path)
