@@ -66,7 +66,7 @@ class MainWindow(QtGui.QMainWindow):
                                  "&Home", self,
                                  shortcut=QtGui.QKeySequence.Open,
                                  statusTip="Home folder",
-                                 triggered=self.do_home_action)
+                                 triggered=self.filemodel.go_home)
         self.toolbar.addAction(home_act)
 
         refresh_icon = style.standardIcon(
@@ -85,9 +85,6 @@ class MainWindow(QtGui.QMainWindow):
                                  statusTip="Parent directory",
                                  triggered=self.filemodel.go_parent)
         self.toolbar.addAction(back_act)
-
-    def do_home_action(self):
-        self.filemodel.set_path(os.path.expanduser('~'))
 
     def do_refresh_action(self):
         pass
@@ -114,6 +111,6 @@ def main():
     app = QtGui.QApplication(sys.argv)
     main = MainWindow()
     main.show()
-    main.filemodel.set_path(os.getcwd())
+    main.filemodel.go_home()
 
     sys.exit(app.exec_())

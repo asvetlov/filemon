@@ -38,3 +38,8 @@ class FileSystemModel(QtGui.QFileSystemModel):
     def go_parent(self):
         path = self.rootPath()
         self.set_path(path + '/..')
+
+    @QtCore.Slot()
+    def go_home(self):
+        path = os.path.expanduser('~')
+        self.set_path(path)
