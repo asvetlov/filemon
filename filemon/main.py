@@ -21,18 +21,12 @@ class MainWindow(QtGui.QMainWindow):
         file = menubar.addMenu('&File')
         file.addAction(exit)
 
-        self.mainWidget = QtGui.QWidget(self)
-        self.setCentralWidget(self.mainWidget)
+        self.main_widget = QtGui.QWidget(self)
+        self.setCentralWidget(self.main_widget)
 
-        self.optionsWidget = QtGui.QWidget(self)
-
-        files_list = QtGui.QListWidget()
-        select_path_label = QtGui.QLabel("Path")
-        dest_path_edit = QtGui.QLineEdit()
-        select_path = QtGui.QPushButton("Go")
-        description_label = QtGui.QLabel("Description")
-        description_edit = QtGui.QLineEdit()
-        start = QtGui.QPushButton("Start")
+        self.cwd_edit = QtGui.QLineEdit()
+        # select_path = QtGui.QPushButton("Go")
+        self.filter_edit = QtGui.QLineEdit()
 
         self.fileBrowserWidget = QtGui.QWidget(self)
 
@@ -50,39 +44,19 @@ class MainWindow(QtGui.QMainWindow):
 
         self.selectionModel = self.file_view.selectionModel()
 
-        group_input = QtGui.QGroupBox()
-        grid_input = QtGui.QGridLayout()
-
-        hbox = QtGui.QHBoxLayout()
+        hbox = QtGui.QVBoxLayout()
+        hbox.addWidget(self.cwd_edit)
+        hbox.addWidget(self.filter_edit)
         hbox.addWidget(self.file_view)
-        self.fileBrowserWidget.setLayout(hbox)
-
-        grid_input.addWidget(select_path_label, 0, 0)
-        grid_input.addWidget(dest_path_edit, 1, 0)
-        grid_input.addWidget(select_path, 1, 1)
-        grid_input.addWidget(description_label, 2, 0)
-        grid_input.addWidget(description_edit, 3, 0)
-        grid_input.addWidget(start, 3, 1)
-        group_input.setLayout(grid_input)
-
-        vbox_options = QtGui.QVBoxLayout(self.optionsWidget)
-        vbox_options.addWidget(files_list)
-        vbox_options.addWidget(group_input)
-        self.optionsWidget.setLayout(vbox_options)
-
-        splitter_filelist = QtGui.QSplitter()
-        splitter_filelist.setOrientation(QtCore.Qt.Vertical)
-        splitter_filelist.addWidget(self.fileBrowserWidget)
-        splitter_filelist.addWidget(self.optionsWidget)
-        vbox_main = QtGui.QVBoxLayout(self.mainWidget)
-        vbox_main.addWidget(splitter_filelist)
-        vbox_main.setContentsMargins(0, 0, 0, 0)
-        # self.setLayout(vbox_main)
+        self.main_widget.setLayout(hbox)
 
     def set_path(self, path):
         print(path)
+        path = os.path.abspath(path)
         self.filemodel.setRootPath(path)
         self.file_view.setRootIndex(self.filemodel.index(path))
+        if self.cwd_edit.text != path:
+            self.cwd_edit.setText(path)
 
     def chdir(self, index):
         # get selected path of folder_view
