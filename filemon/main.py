@@ -21,6 +21,8 @@ class MainWindow(QtGui.QMainWindow):
         file = menubar.addMenu('&File')
         file.addAction(exit)
 
+        self.toolbar = self.addToolBar("Navigation")
+
         self.main_widget = QtGui.QWidget(self)
         self.setCentralWidget(self.main_widget)
 
@@ -33,7 +35,7 @@ class MainWindow(QtGui.QMainWindow):
         self.filemodel = QtGui.QFileSystemModel()
         self.filemodel.setFilter(QtCore.QDir.AllDirs |
                                  QtCore.QDir.NoDot |
-                                 # QtCore.QDir.NoDotDot |
+                                 QtCore.QDir.NoDotDot |
                                  QtCore.QDir.AllEntries |
                                  QtCore.QDir.DirsFirst |
                                  QtCore.QDir.Name)
@@ -49,6 +51,44 @@ class MainWindow(QtGui.QMainWindow):
         hbox.addWidget(self.filter_edit)
         hbox.addWidget(self.file_view)
         self.main_widget.setLayout(hbox)
+        self.setup_toolbar()
+
+    def setup_toolbar(self):
+        style = self.style()
+        home_icon = style.standardIcon(QtGui.QStyle.SP_DirHomeIcon, None, self)
+        home_act = QtGui.QAction(QtGui.QIcon(home_icon),
+                                 "&Home", self,
+                                 shortcut=QtGui.QKeySequence.Open,
+                                 statusTip="Home folder",
+                                 triggered=self.do_home_action)
+        self.toolbar.addAction(home_act)
+
+        refresh_icon = style.standardIcon(
+            QtGui.QStyle.SP_BrowserReload, None, self)
+        refresh_act = QtGui.QAction(refresh_icon,
+                                    "&Refresh", self,
+                                    shortcut=QtGui.QKeySequence.Refresh,
+                                    statusTip="Refresh page",
+                                    triggered=self.do_refresh_action)
+        self.toolbar.addAction(refresh_act)
+
+        back_icon = style.standardIcon(
+            QtGui.QStyle.SP_FileDialogToParent, None, self)
+        back_act = QtGui.QAction(back_icon, "&Parent", self,
+                                 shortcut=QtGui.QKeySequence.Back,
+                                 statusTip="Parent directory",
+                                 triggered=self.do_back_action)
+        self.toolbar.addAction(back_act)
+
+    def do_home_action(self):
+        self.set_path(os.path.expanduser('~'))
+
+    def do_refresh_action(self):
+        pass
+
+    def do_back_action(self):
+        path = self.filemodel.rootPath()
+        self.set_path(path + '/..')
 
     def set_path(self, path):
         print(path)
