@@ -37,14 +37,12 @@ class MainWindow(QtGui.QMainWindow):
         self.fileBrowserWidget = QtGui.QWidget(self)
 
         self.filemodel = QtGui.QFileSystemModel()
-        self.filemodel.setFilter(QtCore.QDir.Name |
-                                 QtCore.QDir.AllDirs |
+        self.filemodel.setFilter(QtCore.QDir.AllDirs |
                                  QtCore.QDir.NoDot |
-                                 QtCore.QDir.NoDotDot |
+                                 # QtCore.QDir.NoDotDot |
                                  QtCore.QDir.AllEntries |
-                                 QtCore.QDir.IgnoreCase |
                                  QtCore.QDir.DirsFirst |
-                                 QtCore.QDir.LocaleAware)
+                                 QtCore.QDir.Name)
 
         self.file_view = QtGui.QListView(parent=self)
         self.file_view.setModel(self.filemodel)
@@ -82,7 +80,9 @@ class MainWindow(QtGui.QMainWindow):
         # self.setLayout(vbox_main)
 
     def set_path(self, path):
+        print(path)
         self.filemodel.setRootPath(path)
+        self.file_view.setRootIndex(self.filemodel.index(path))
 
     def chdir(self, index):
         # get selected path of folder_view
@@ -90,15 +90,13 @@ class MainWindow(QtGui.QMainWindow):
         if not self.filemodel.isDir(index):
             return
         dir_path = self.filemodel.filePath(index)
-
-        self.filemodel.setRootPath(dir_path)
-        self.file_view.setRootIndex(self.filemodel.index(dir_path))
+        self.set_path(dir_path)
 
 
 def main():
     app = QtGui.QApplication(sys.argv)
     main = MainWindow()
     main.show()
-    main.set_path(os.getcwd())
+    # main.set_path(os.getcwd())
 
     sys.exit(app.exec_())
