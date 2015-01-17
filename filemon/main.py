@@ -97,6 +97,6 @@ def main():
     app = QtGui.QApplication(sys.argv)
     main = MainWindow()
     main.show()
-    # main.set_path(os.getcwd())
+    main.set_path(os.getcwd())
 
     sys.exit(app.exec_())
