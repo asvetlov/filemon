@@ -21,19 +21,16 @@ class FileSystemModel(QtGui.QFileSystemModel):
 
         self._processed = set()
         self._total_count = 0
+        self.setNameFilterDisables(False)
 
     @QtCore.Slot(str)
     def filter_changed(self, text):
         print('filter changed', text)
-        # FIXME: doesn't work after root changing
         text = text.strip()
         if text:
-            self.setNameFilters(['*'+text+'*'])
+            self.setNameFilters(['*' + text + '*'])
         else:
             self.setNameFilters([])
-        self.setNameFilterDisables(False)
-
-        self.status_changed.emit(self._total_count, len(self._processed))
 
     def set_path(self, path):
         print(path)
