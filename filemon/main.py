@@ -31,7 +31,8 @@ class MainWindow(QtGui.QMainWindow):
 
         self.cwd_edit = QtGui.QLineEdit()
         self.filemodel.rootPathChanged.connect(self.cwd_edit.setText)
-        # select_path = QtGui.QPushButton("Go")
+        select_path = QtGui.QPushButton("Go")
+        select_path.clicked.connect(self.chdir2)
         self.filter_edit = QtGui.QLineEdit()
         self.filter_edit.textChanged.connect(self.filemodel.filter_changed)
         self.filemodel.filter_reset.connect(self.filter_edit.clear)
@@ -51,11 +52,14 @@ class MainWindow(QtGui.QMainWindow):
         splitter.addWidget(self.file_view)
         splitter.addWidget(self.preview)
 
-        hbox = QtGui.QVBoxLayout()
+        vbox = QtGui.QVBoxLayout()
+        hbox = QtGui.QHBoxLayout()
         hbox.addWidget(self.cwd_edit)
-        hbox.addWidget(self.filter_edit)
-        hbox.addWidget(splitter)
-        self.main_widget.setLayout(hbox)
+        hbox.addWidget(select_path)
+        vbox.addLayout(hbox)
+        vbox.addWidget(self.filter_edit)
+        vbox.addWidget(splitter)
+        self.main_widget.setLayout(vbox)
         self.setup_toolbar()
         self.setup_statusbar()
 
@@ -153,6 +157,9 @@ class MainWindow(QtGui.QMainWindow):
             return
         dir_path = self.filemodel.filePath(index)
         self.filemodel.set_path(dir_path)
+
+    def chdir2(self):
+        self.filemodel.set_path(self.cwd_edit.text())
 
     def unmark_current(self):
         # get selected path of folder_view
