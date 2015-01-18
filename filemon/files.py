@@ -69,6 +69,13 @@ class FileSystemModel(QtGui.QFileSystemModel):
         with open(storage, 'w') as f:
             f.write('\n'.join(sorted(self._processed)))
 
+    def data(self, index, role):
+        if role == QtCore.Qt.ForegroundRole:
+            path = self.filePath(index)
+            if path in self._processed:
+                return QtGui.QBrush(QtGui.QColor(255, 0, 0))
+        return super().data(index, role)
+
 
 class FileView(QtGui.QListView):
 
