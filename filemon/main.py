@@ -11,18 +11,6 @@ class MainWindow(QtGui.QMainWindow):
 
         self.resize(600, 600)
         self.setWindowTitle('FileMon')
-        exit = QtGui.QAction('Exit', self)
-        exit.setShortcut('Ctrl+Q')
-        exit.setStatusTip('Exit from program')
-        self.connect(exit,
-                     QtCore.SIGNAL('triggered()'), QtCore.SLOT('close()'))
-
-        self.statusBar()
-        menubar = self.menuBar()
-        file = menubar.addMenu('&File')
-        file.addAction(exit)
-
-        self.toolbar = self.addToolBar("Navigation")
 
         self.main_widget = QtGui.QWidget(self)
         self.setCentralWidget(self.main_widget)
@@ -64,6 +52,8 @@ class MainWindow(QtGui.QMainWindow):
         self.setup_statusbar()
 
     def setup_toolbar(self):
+        self.toolbar = self.addToolBar("Navigation")
+
         style = self.style()
         home_icon = style.standardIcon(QtGui.QStyle.SP_DirHomeIcon, None, self)
         home_act = QtGui.QAction(QtGui.QIcon(home_icon),
