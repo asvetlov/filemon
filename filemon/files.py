@@ -47,3 +47,40 @@ class FileSystemModel(QtGui.QFileSystemModel):
     @QtCore.Slot()
     def go_cwd(self):
         self.set_path(os.getcwd())
+
+    def file_dragged(self, path):
+        print("Dragged", path)
+
+
+class FileView(QtGui.QListView):
+
+    def __init__(self, parent):
+        QtGui.QListView.__init__(self, parent)
+        self.setDragEnabled(True)
+
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            self._drag_start_pos = event.pos()
+        return QtGui.QListView.mousePressEvent(self, event)
+
+    def mouseMoveEvent(self, event):
+        if not event.buttons() & QtCore.Qt.LeftButton:
+            return
+        if ((event.pos() - self._drag_start_pos).manhattanLength() <
+                QtGui.QApplication.startDragDistance()):
+            return
+
+        model = self.model()
+        drag = QtGui.QDrag(self)
+        index = self.indexAt(self._drag_start_pos)
+        if model.isDir(index):
+            return
+        path = model.filePath(index)
+
+        mimedata = model.mimeData([index])
+
+        drag.setMimeData(mimedata)
+
+        drop_action = drag.exec_(QtCore.Qt.CopyAction)
+        if drop_action == QtCore.Qt.CopyAction:
+            model.file_dragged(path)

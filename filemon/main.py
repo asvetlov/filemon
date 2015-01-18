@@ -1,7 +1,7 @@
 import sys
 from PySide import QtGui, QtCore
 
-from .files import FileSystemModel
+from .files import FileSystemModel, FileView
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -38,7 +38,7 @@ class MainWindow(QtGui.QMainWindow):
 
         self.fileBrowserWidget = QtGui.QWidget(self)
 
-        self.file_view = QtGui.QListView(parent=self)
+        self.file_view = FileView(parent=self)
         self.file_view.setModel(self.filemodel)
         self.file_view.doubleClicked[QtCore.QModelIndex].connect(self.chdir)
         self.filemodel.root_index_changed.connect(self.file_view.setRootIndex)
