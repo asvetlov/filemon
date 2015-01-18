@@ -7,6 +7,8 @@ class FileSystemModel(QtGui.QFileSystemModel):
     filter_reset = QtCore.Signal()
     root_index_changed = QtCore.Signal(QtCore.QModelIndex)
 
+    STORAGE_NAME = '.filemon.dat'
+
     def __init__(self):
         QtGui.QFileSystemModel.__init__(self)
         self.setFilter(QtCore.QDir.AllDirs |
@@ -15,6 +17,8 @@ class FileSystemModel(QtGui.QFileSystemModel):
                        QtCore.QDir.AllEntries |
                        QtCore.QDir.DirsFirst |
                        QtCore.QDir.Name)
+
+        self._processed = set()
 
     @QtCore.Slot(str)
     def filter_changed(self, text):
@@ -33,6 +37,16 @@ class FileSystemModel(QtGui.QFileSystemModel):
         self.setRootPath(path)
         self.filter_reset.emit()
         self.root_index_changed.emit(self.index(path))
+        storage = os.path.join(path, self.STORAGE_NAME)
+        self._processed = set()
+        if os.path.isfile(storage):
+            with open(storage) as f:
+                data = set(f.read().splitlines())
+            present = set(os.listdir(path))
+            self._processed = data - present
+            if data != self._processed:
+                with open(storage, 'w') as f:
+                    f.write('\n'.join(sorted(self._processed)))
 
     @QtCore.Slot()
     def go_parent(self):
@@ -50,6 +64,10 @@ class FileSystemModel(QtGui.QFileSystemModel):
 
     def file_dragged(self, path):
         print("Dragged", path)
+        self._processed.add(path)
+        storage = os.path.join(self.rootPath(), self.STORAGE_NAME)
+        with open(storage, 'w') as f:
+            f.write('\n'.join(sorted(self._processed)))
 
 
 class FileView(QtGui.QListView):
