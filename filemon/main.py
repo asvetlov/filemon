@@ -104,6 +104,15 @@ class MainWindow(QtGui.QMainWindow):
                                   triggered=self.filemodel.reset_markers)
         self.toolbar.addAction(reset_act)
 
+        unmark_icon = style.standardIcon(QtGui.QStyle.SP_TrashIcon,
+                                         None, self)
+        unmark_act = QtGui.QAction(QtGui.QIcon(unmark_icon),
+                                   "&Unmark the current file", self,
+                                   shortcut=QtGui.QKeySequence.Open,
+                                   statusTip="Unmark the current file",
+                                   triggered=self.unmark_current)
+        self.toolbar.addAction(unmark_act)
+
     def setup_statusbar(self):
         bar = self.statusBar()
         self.counter = QtGui.QLabel(self)
@@ -144,6 +153,11 @@ class MainWindow(QtGui.QMainWindow):
             return
         dir_path = self.filemodel.filePath(index)
         self.filemodel.set_path(dir_path)
+
+    def unmark_current(self):
+        # get selected path of folder_view
+        index = self.selectionModel.currentIndex()
+        self.filemodel.unmark(index)
 
 
 def main():

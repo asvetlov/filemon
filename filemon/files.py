@@ -77,7 +77,7 @@ class FileSystemModel(QtGui.QFileSystemModel):
             f.write('\n'.join(sorted(self._processed)))
 
     def data(self, index, role):
-        if role == QtCore.Qt.ForegroundRole:
+        if index.isValid() and role == QtCore.Qt.ForegroundRole:
             path = self.filePath(index)
             if path in self._processed:
                 return QtGui.QBrush(QtGui.QColor(255, 0, 0))
@@ -86,6 +86,14 @@ class FileSystemModel(QtGui.QFileSystemModel):
     @QtCore.Slot()
     def reset_markers(self):
         self._processed = set()
+        self._save()
+        self.set_path(self.rootPath())
+
+    def unmark(self, index):
+        if not index.isValid():
+            return
+        path = self.filePath(index)
+        self._processed.discard(path)
         self._save()
         self.set_path(self.rootPath())
 
@@ -111,6 +119,8 @@ class FileView(QtGui.QListView):
         model = self.model()
         drag = QtGui.QDrag(self)
         index = self.indexAt(self._drag_start_pos)
+        if not index.isValid():
+            return
         if model.isDir(index):
             return
         path = model.filePath(index)
