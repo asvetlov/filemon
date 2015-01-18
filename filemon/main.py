@@ -57,6 +57,7 @@ class MainWindow(QtGui.QMainWindow):
         hbox.addWidget(splitter)
         self.main_widget.setLayout(hbox)
         self.setup_toolbar()
+        self.setup_statusbar()
 
     def setup_toolbar(self):
         style = self.style()
@@ -93,6 +94,26 @@ class MainWindow(QtGui.QMainWindow):
         pin_act.toggled.connect(self.do_stay_on_top)
         pin_act.setCheckable(True)
         self.toolbar.addAction(pin_act)
+
+        reset_icon = style.standardIcon(QtGui.QStyle.SP_DialogResetButton,
+                                        None, self)
+        reset_act = QtGui.QAction(QtGui.QIcon(reset_icon),
+                                  "&Reset markers", self,
+                                  shortcut=QtGui.QKeySequence.Open,
+                                  statusTip="Reset markers",
+                                  triggered=self.filemodel.reset_markers)
+        self.toolbar.addAction(reset_act)
+
+    def setup_statusbar(self):
+        bar = self.statusBar()
+        self.counter = QtGui.QLabel(self)
+        bar.addWidget(self.counter)
+        self.filemodel.status_changed.connect(self.do_update_counter)
+
+    def do_update_counter(self, total, marked):
+        print('Update counters')
+        txt = "Total: {}, Marked: {}".format(total, marked)
+        self.counter.setText(txt)
 
     def do_refresh_action(self):
         pass

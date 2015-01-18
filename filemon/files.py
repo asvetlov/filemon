@@ -6,6 +6,7 @@ class FileSystemModel(QtGui.QFileSystemModel):
 
     filter_reset = QtCore.Signal()
     root_index_changed = QtCore.Signal(QtCore.QModelIndex)
+    status_changed = QtCore.Signal(int, int)
 
     STORAGE_NAME = '.filemon.dat'
 
@@ -19,6 +20,7 @@ class FileSystemModel(QtGui.QFileSystemModel):
                        QtCore.QDir.Name)
 
         self._processed = set()
+        self._total_count = 0
 
     @QtCore.Slot(str)
     def filter_changed(self, text):
@@ -31,22 +33,26 @@ class FileSystemModel(QtGui.QFileSystemModel):
             self.setNameFilters([])
         self.setNameFilterDisables(False)
 
+        self.status_changed.emit(self._total_count, len(self._processed))
+
     def set_path(self, path):
         print(path)
         path = os.path.abspath(path)
+        self.reset()
         self.setRootPath(path)
         self.filter_reset.emit()
         self.root_index_changed.emit(self.index(path))
         storage = os.path.join(path, self.STORAGE_NAME)
         self._processed = set()
+        present = set(os.listdir(path))
+        self._total_count = sum(1 for i in present if not i.startswith('.'))
         if os.path.isfile(storage):
             with open(storage) as f:
                 data = set(f.read().splitlines())
-            present = set(os.listdir(path))
             self._processed = data - present
             if data != self._processed:
-                with open(storage, 'w') as f:
-                    f.write('\n'.join(sorted(self._processed)))
+                self._save()
+        self.status_changed.emit(self._total_count, len(self._processed))
 
     @QtCore.Slot()
     def go_parent(self):
@@ -65,6 +71,10 @@ class FileSystemModel(QtGui.QFileSystemModel):
     def file_dragged(self, path):
         print("Dragged", path)
         self._processed.add(path)
+        self._save()
+
+    def _save(self):
+        self.status_changed.emit(self._total_count, len(self._processed))
         storage = os.path.join(self.rootPath(), self.STORAGE_NAME)
         with open(storage, 'w') as f:
             f.write('\n'.join(sorted(self._processed)))
@@ -75,6 +85,12 @@ class FileSystemModel(QtGui.QFileSystemModel):
             if path in self._processed:
                 return QtGui.QBrush(QtGui.QColor(255, 0, 0))
         return super().data(index, role)
+
+    @QtCore.Slot()
+    def reset_markers(self):
+        self._processed = set()
+        self._save()
+        self.set_path(self.rootPath())
 
 
 class FileView(QtGui.QListView):
