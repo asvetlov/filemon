@@ -29,7 +29,7 @@ class MainWindow(QtGui.QMainWindow):
 
         self.file_view = FileView(parent=self)
         self.file_view.setModel(self.filemodel)
-        self.file_view.doubleClicked[QtCore.QModelIndex].connect(self.chdir)
+        self.file_view.doubleClicked[QtCore.QModelIndex].connect(self.dbl_click)
         self.filemodel.root_index_changed.connect(self.file_view.setRootIndex)
 
         self.selectionModel = self.file_view.selectionModel()
@@ -141,13 +141,16 @@ class MainWindow(QtGui.QMainWindow):
             pixmap = pixmap.scaledToHeight(size.height())
         self.preview.setPixmap(pixmap)
 
-    def chdir(self, index):
+    def dbl_click(self, index):
         # get selected path of folder_view
         index = self.selectionModel.currentIndex()
-        if not self.filemodel.isDir(index):
+        if not index.isValid():
             return
-        dir_path = self.filemodel.filePath(index)
-        self.filemodel.set_path(dir_path)
+        if self.filemodel.isDir(index):
+            dir_path = self.filemodel.filePath(index)
+            self.filemodel.set_path(dir_path)
+        else:
+            self.filemodel.start_file(index)
 
     def chdir2(self):
         self.filemodel.set_path(self.cwd_edit.text())

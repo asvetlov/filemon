@@ -1,4 +1,6 @@
 import os
+import sys
+import subprocess
 from PySide import QtGui, QtCore
 
 
@@ -106,6 +108,14 @@ class FileSystemModel(QtGui.QFileSystemModel):
         self._processed.discard(path)
         self._save()
         self.set_path(self.rootPath())
+
+    def start_file(self, index):
+        filename = self.fileName(index)
+        if sys.platform == "win32":
+            os.startfile(filename)
+        else:
+            opener = "open" if sys.platform == "darwin" else "xdg-open"
+            subprocess.call([opener, filename])
 
 
 class FileView(QtGui.QListView):
