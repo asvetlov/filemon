@@ -24,4 +24,5 @@ setup(name='filemon',
       packages=find_packages(),
       install_requires=install_requires,
       include_package_data=True,
-      entry_points={'console_scripts': ['filemon = filemon.main:main']})
+      entry_points={'console_scripts': ['filemon_dbg = filemon.main:main'],
+                    'gui_scripts': ['filemon = filemon.main:main']})
