@@ -31,6 +31,16 @@ class FileSystemModel(QtGui.QFileSystemModel):
             self.setNameFilters(['*' + text + '*'])
         else:
             self.setNameFilters([])
+        self._total_count = len(self._files())
+        self.status_changed.emit(self._total_count, len(self._processed))
+
+    def _files(self):
+        ret = []
+        idx = self.index(self.rootPath())
+        for i in range(0, self.rowCount(idx)):
+            child = idx.child(i, idx.column())
+            ret.append(self.fileName(child))
+        return ret
 
     def set_path(self, path):
         print(path)
@@ -42,7 +52,7 @@ class FileSystemModel(QtGui.QFileSystemModel):
         storage = os.path.join(path, self.STORAGE_NAME)
         self._processed = set()
         present = set(os.listdir(path))
-        self._total_count = sum(1 for i in present if not i.startswith('.'))
+        self._total_count = len(self._files())
         if os.path.isfile(storage):
             with open(storage) as f:
                 data = set(f.read().splitlines())
