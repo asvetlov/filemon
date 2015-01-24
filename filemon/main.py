@@ -55,6 +55,15 @@ class MainWindow(QtGui.QMainWindow):
         self.toolbar = self.addToolBar("Navigation")
 
         style = self.style()
+
+        back_icon = style.standardIcon(
+            QtGui.QStyle.SP_FileDialogToParent, None, self)
+        back_act = QtGui.QAction(back_icon, "&Parent", self,
+                                 shortcut=QtGui.QKeySequence.Back,
+                                 statusTip="Parent directory",
+                                 triggered=self.filemodel.go_parent)
+        self.toolbar.addAction(back_act)
+
         home_icon = style.standardIcon(QtGui.QStyle.SP_DirHomeIcon, None, self)
         home_act = QtGui.QAction(QtGui.QIcon(home_icon),
                                  "&Home", self,
@@ -71,14 +80,6 @@ class MainWindow(QtGui.QMainWindow):
                                     statusTip="Refresh page",
                                     triggered=self.do_refresh_action)
         self.toolbar.addAction(refresh_act)
-
-        back_icon = style.standardIcon(
-            QtGui.QStyle.SP_FileDialogToParent, None, self)
-        back_act = QtGui.QAction(back_icon, "&Parent", self,
-                                 shortcut=QtGui.QKeySequence.Back,
-                                 statusTip="Parent directory",
-                                 triggered=self.filemodel.go_parent)
-        self.toolbar.addAction(back_act)
 
         pin_icon = style.standardIcon(
             QtGui.QStyle.SP_DialogYesButton, None, self)
