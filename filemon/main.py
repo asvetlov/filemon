@@ -29,7 +29,8 @@ class MainWindow(QtGui.QMainWindow):
 
         self.file_view = FileView(parent=self)
         self.file_view.setModel(self.filemodel)
-        self.file_view.doubleClicked[QtCore.QModelIndex].connect(self.dbl_click)
+        self.file_view.doubleClicked[QtCore.QModelIndex].connect(
+            self.dbl_click)
         self.filemodel.root_index_changed.connect(self.file_view.setRootIndex)
 
         self.selectionModel = self.file_view.selectionModel()

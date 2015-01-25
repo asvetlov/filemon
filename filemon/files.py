@@ -22,8 +22,17 @@ class FileSystemModel(QtGui.QFileSystemModel):
                        QtCore.QDir.Name)
 
         self._processed = set()
+        self._marked_count = 0
         self._total_count = 0
         self.setNameFilterDisables(False)
+        self.directoryLoaded.connect(self._update_stats)
+
+    def _update_stats(self):
+        files = self._files()
+        print(files, self._processed)
+        self._marked_count = sum(1 for f in files if f in self._processed)
+        self._total_count = len(files)
+        self.status_changed.emit(self._total_count, self._marked_count)
 
     @QtCore.Slot(str)
     def filter_changed(self, text):
@@ -33,8 +42,7 @@ class FileSystemModel(QtGui.QFileSystemModel):
             self.setNameFilters(['*' + text + '*'])
         else:
             self.setNameFilters([])
-        self._total_count = len(self._files())
-        self.status_changed.emit(self._total_count, len(self._processed))
+        self._update_stats()
 
     def _files(self):
         ret = []
@@ -54,14 +62,13 @@ class FileSystemModel(QtGui.QFileSystemModel):
         storage = os.path.join(path, self.STORAGE_NAME)
         self._processed = set()
         present = set(os.listdir(path))
-        self._total_count = len(self._files())
         if os.path.isfile(storage):
             with open(storage) as f:
                 data = set(f.read().splitlines())
             self._processed = data - present
             if data != self._processed:
                 self._save()
-        self.status_changed.emit(self._total_count, len(self._processed))
+        self._update_stats()
 
     @QtCore.Slot()
     def go_parent(self):
@@ -83,7 +90,7 @@ class FileSystemModel(QtGui.QFileSystemModel):
         self._save()
 
     def _save(self):
-        self.status_changed.emit(self._total_count, len(self._processed))
+        self._update_stats()
         storage = os.path.join(self.rootPath(), self.STORAGE_NAME)
         with open(storage, 'w') as f:
             f.write('\n'.join(sorted(self._processed)))
